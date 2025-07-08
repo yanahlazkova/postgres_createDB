@@ -188,10 +188,4 @@ def main():
                 print("Exiting...")
                 break
 main()
-    # 👇 Приклад вставки
-    # add_product("Мило", 25.50, "Господарське мило", datetime.now(), "Україна")
-    # add_order(120.00, 5)
 
-    # 👇 Приклад виклику
-    # print(get_all_products())
-    # print(get_orders_today())
