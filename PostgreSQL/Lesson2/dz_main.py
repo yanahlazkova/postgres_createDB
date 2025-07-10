@@ -2,7 +2,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 import os
-# from datetime import date, datetime
+from datetime import date, datetime
 
 load_dotenv()
 
@@ -41,12 +41,22 @@ def create_orders_tb():
     '''
     cursor.execute(query)
 
-def add_product(name, price, description, published_at, country):
+def add_product(name, price, description, published_at, country='Ukrain'):
     query = '''
     INSERT INTO products (name, price, description, published_at, country)
     VALUES (%s, %s, %s, %s, %s);
     '''
     cursor.execute(query, (name, price, description, published_at, country))
+    # повернемо доданий товар
+    new_product_query = '''
+    SELECT * FROM products
+    WHERE published_at = %s;
+
+    '''
+    # ORDER BY published_at DESC
+    # LIMIT 1;
+    cursor.execute(new_product_query, (published_at,))
+    return cursor.fetchall()
 
 def delete_product(product_id):
     cursor.execute('DELETE FROM products WHERE id = %s;', (product_id,))
@@ -165,17 +175,34 @@ def get_month_product_count():
     ''')
     return cursor.fetchone()
 
+def menu_add():
+    choice_add = int(input('1-Product\n2-Order\n3-Back'))
+    match choice_add:
+        case 1:
+            print('Додавання товару')
+            name = input('Enter name of product: ')
+            price = float(input('Enter price: '))
+            description = input('Enter description: ')
+            published_at = datetime.now()
+            new_product = add_product(name, price, description, published_at)
+            print("Product added successfully.")
+            print(new_product)
+        case 2:
+            print('Створення замовлення')
+        case 3:
+            print("Exiting...")
+            return 
+            
+
 def main():
     create_products_tb()
     create_orders_tb()
     
     while True:
-        choice = int(input("1-Add Product\n2-View Products\n3-Delete Products\n4-Exit\nChoose an option: "))
+        choice = int(input("1-Add\n2-View\n3-Delete\n4-Exit\nChoose an option: "))
         match choice:
             case 1:
-                product = input("Enter product (name, price, description, published_at, country): ")
-                add_product(product)
-                print("Product added successfully.")
+                menu_add()
             case 2:
                 products = get_all_products()
                 for product in products:
@@ -188,4 +215,3 @@ def main():
                 print("Exiting...")
                 break
 main()
-
