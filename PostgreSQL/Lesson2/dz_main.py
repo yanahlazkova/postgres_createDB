@@ -44,19 +44,16 @@ def create_orders_tb():
 def add_product(name, price, description, published_at, country='Ukrain'):
     query = '''
     INSERT INTO products (name, price, description, published_at, country)
-    VALUES (%s, %s, %s, %s, %s);
+    VALUES (%s, %s, %s, %s, %s) RETURNING id, name, price;
     '''
     cursor.execute(query, (name, price, description, published_at, country))
     # повернемо доданий товар
-    new_product_query = '''
-    SELECT * FROM products
-    WHERE published_at = %s;
+    result = cursor.fetchone()
+    if result:
+        return f'Added {result['name']}'
+    else:
+        return 'помилка додавання товару'
 
-    '''
-    # ORDER BY published_at DESC
-    # LIMIT 1;
-    cursor.execute(new_product_query, (published_at,))
-    return cursor.fetchall()
 
 def delete_product(product_id):
     cursor.execute('DELETE FROM products WHERE id = %s;', (product_id,))
